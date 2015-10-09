@@ -14,6 +14,7 @@ var fixturesFolder = path.resolve(__dirname, '.'+path.sep+'fixtures') + path.sep
 // Default configuration object.
 var defaultConfig = {
   database: {
+    idAttributeName: undefined,
     instance: undefined,
     type: undefined
   },
@@ -30,6 +31,7 @@ var defaultConfig = {
 };
 
 var defaultLogConfig = {
+  level: 40, //Information about Levels https://github.com/trentm/node-bunyan#levels
   name: 'Cramit'
 }
 
