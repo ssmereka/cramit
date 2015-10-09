@@ -46,7 +46,7 @@ module.exports = function(cramit) {
    * @param {string} schemaName is the data's schema name 
    * where the information will be stored.
    * @param {object} item is the data to add to the database.
-   * @param {cudOneItemCallback} cb is a callback method.
+   * @param {crudOneItemCallback} cb is a callback method.
    */
   MongooseAdapter.prototype.addItem = function(schemaName, item, cb) {
     var adapter = this;
@@ -116,8 +116,7 @@ module.exports = function(cramit) {
   };
 
   /**
-   * Find an item by ID and remove it from the specified 
-   * document.
+   * Find an item by ID in the specified document.
    *
    * Specify the ID attribute name using the class's 
    * "idAttributeName" value.
@@ -125,11 +124,11 @@ module.exports = function(cramit) {
    * @param {string} schemaName is the data's schema name 
    * where the information is stored.
    * @param {string} id is the data's unique identifier.
-   * @param {cudOneItemCallback} cb is a callback method.
+   * @param {crudOneItemCallback} cb is a callback method.
    */
-  MongooseAdapter.prototype.removeItemById = function(schemaName, id, cb) {
+  MongooseAdapter.prototype.findItemById = function(schemaName, id, cb) {
     var adapter = this;
-      
+
     // Make sure the callback is defined and displays errors
     if( ! cb) {
       cb = function(err) { if(err) { cramit.log.error(err); } };
@@ -137,12 +136,12 @@ module.exports = function(cramit) {
 
     // The schema needs to be defined.
     if( ! schemaName) {
-      return cb(cramit.error.build('MongooseAdapter.removeItemById():  Cannot remove an item from an undefined schema.'));
+      return cb(cramit.error.build('MongooseAdapter.findById():  Cannot find an item from an undefined schema.'));
     }
 
     // The ID should always be a valid string.
     if( ! id || ! _.isString(id)) {
-      return cb(cramit.error.build('MongooseAdapter.removeItemById():  Cannot remove an item with an invalid ID.'));
+      return cb(cramit.error.build('MongooseAdapter.findById():  Cannot find an item with an invalid ID.'));
     }
 
     var Schema = adapter.mongoose.model(schemaName),
@@ -153,20 +152,93 @@ module.exports = function(cramit) {
     Schema.findOne(query, function (err, data) {
       if (err) {
         cb(err);
+      } else if (data === undefined || data === null) {
+        cramit.log.trace("Schema %s with item id %s was not found.", schemaName, id);
+        cb();
       } else {
-        if (data === undefined || data === null) {
-          cramit.log.trace("Schema %s with item id %s already removed.", schemaName, id);
-          cb();
-        } else {
-          data.remove(function(err, removedItem) {
-            if(err) {
-              cb(err);
-            } else {
-              cramit.log.trace("Schema %s with item id %s removed.", schemaName, data[adapter.idAttributeName]);
-              cb(undefined, removedItem);
-            }
-          });
-        }
+        cb(undefined, data);
+      }
+    });
+  }
+
+  /**
+   * Find an item by ID in a list of items.
+   *
+   * Specify the ID attribute name using the class's 
+   * "idAttributeName" value.
+   *
+   * @param {string} schemaName is the data's schema name 
+   * where the information is stored.
+   * @param {string} id is the data's unique identifier.
+   * @param {crudOneItemCallback} cb is a callback method.
+   */
+  MongooseAdapter.prototype.findItemInListById = function(list, id, cb) {
+    var adapter = this;
+
+    // Make sure the callback is defined and displays errors
+    if( ! cb) {
+      cb = function(err) { if(err) { cramit.log.error(err); } };
+    }
+
+    // The schema needs to be defined.
+    if( ! schemaName) {
+      return cb(cramit.error.build('MongooseAdapter.findById():  Cannot find an item from an undefined schema.'));
+    }
+
+    // The ID should always be a valid string.
+    if( ! id || ! _.isString(id)) {
+      return cb(cramit.error.build('MongooseAdapter.findById():  Cannot find an item with an invalid ID.'));
+    }
+
+    var Schema = adapter.mongoose.model(schemaName),
+      query = {};
+
+    query[adapter.idAttributeName] = id;
+
+    Schema.findOne(query, function (err, data) {
+      if (err) {
+        cb(err);
+      } else if (data === undefined || data === null) {
+        cramit.log.trace("Schema %s with item id %s was not found.", schemaName, id);
+        cb();
+      } else {
+        cb(undefined, data);
+      }
+    });
+  }
+
+  /**
+   * Find an item by ID and remove it from the specified 
+   * document.
+   *
+   * Specify the ID attribute name using the class's 
+   * "idAttributeName" value.
+   *
+   * @param {string} schemaName is the data's schema name 
+   * where the information is stored.
+   * @param {string} id is the data's unique identifier.
+   * @param {crudOneItemCallback} cb is a callback method.
+   */
+  MongooseAdapter.prototype.removeItemById = function(schemaName, id, cb) {
+    var adapter = this;
+
+    // Make sure the callback is defined and displays errors
+    if( ! cb) {
+      cb = function(err) { if(err) { cramit.log.error(err); } };
+    }
+
+    adapter.findItemById(schemaName, id, function(err, item){
+      if(err) {
+        cb(err);
+      } else {
+        data.remove(function(err, removedItem) {
+          if(err) {
+            cb(err);
+          } else {
+            cramit.log.trace("Schema %s with item id %s removed.", schemaName, item[adapter.idAttributeName]);
+            cb(undefined, removedItem);
+          }
+        });
       }
     });
   };
@@ -218,7 +290,7 @@ module.exports = function(cramit) {
    * where the information is stored.
    * @param {string} item is the item to remove from the 
    * document.
-   * @param {cudOneItemCallback} cb is a callback method.
+   * @param {crudOneItemCallback} cb is a callback method.
    */
   MongooseAdapter.prototype.removeItem = function(schemaName, item, cb) {
     var adapter = this;
@@ -264,7 +336,7 @@ module.exports = function(cramit) {
    * @param {string} schemaName is the data's schema name 
    * where the information will be added or updated.
    * @param {object} item is the data to upsert in the database.
-   * @param {cudOneItemCallback} cb is a callback method.
+   * @param {crudOneItemCallback} cb is a callback method.
    */
   MongooseAdapter.prototype.upsertItem = function(schemaName, item, cb) {
     var adapter = this;
@@ -408,7 +480,7 @@ module.exports = function(cramit) {
    * ************************************************** */
 
   return new MongooseAdapter();
-  
+
 };
 
 
@@ -417,11 +489,11 @@ module.exports = function(cramit) {
  * ************************************************** */
 
 /**
- * A callback used when fixture data is inserted, updated, 
- * or deleted in the database.  The result data will be the 
- * modified object.
+ * A callback used when fixture data is queried, inserted, 
+ * updated, or deleted in the database.  The result data 
+ * will be the modified object.
  *
- * @callback cudOneItemCallback
+ * @callback crudOneItemCallback
  * @param {object|undefined} error describes the error that 
  * occurred.
  * @param {array|undefined} result is the modified object.

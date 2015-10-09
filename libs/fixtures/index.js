@@ -60,7 +60,22 @@ module.exports = function(cramit, options) {
     this.db.remove(this.getAllAndNew(), this.id, cb);
   };
 
+  /**
+   * Delete all of the fixture's data from the database.
+   *
+   * @param {cudCallback} cb is a callback method.
+   */
   Fixture.prototype.findById = function(id, cb) {
+    this.db.findItemById(this.id, id, cb);
+  };
+
+  /**
+   * Delete all of the fixture's data from the database.
+   *
+   * @param {cudCallback} cb is a callback method.
+   */
+  Fixture.prototype.findDataById = function(id, cb) {
+    this.db.
     var items = this.getAll();
     for(var i = 0; i < items.length; i++) {
       if(items[i]._id == id) {
@@ -96,7 +111,13 @@ module.exports = function(cramit, options) {
     return items;
   };
 
+
+/* ************************************************** *
+ * ******************** Expose Fixture
+ * ************************************************** */
+
   return Fixture;
+
 }
 
 
