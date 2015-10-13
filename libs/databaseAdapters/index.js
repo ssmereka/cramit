@@ -36,13 +36,13 @@ var DatabaseAdapter = function(config, log) {
  * transactions.
  * 
  * @param {string} type is the type of transaction.
- * @param {object} item is the object to be modified 
- * or queried.
+ * @param {object|array} items is the object or list 
+ * of objects to be modified or queried.
  * @param {object} options is any additional settings 
  * included with the database operation.
  * @param  {transactionCallback} is a callback method.
  */
-DatabaseAdapter.prototype.startTransaction = function(type, item, options, cb) {
+DatabaseAdapter.prototype.startTransaction = function(type, items, options, cb) {
   cb(undefined, {});
 };
 
@@ -84,9 +84,18 @@ DatabaseAdapter.prototype.failedTransaction = function(transaction, err, cb) {
  * ******************** Database Methods
  * ************************************************** */
 
+/**
+ * Insert one or more items to the database.
+ * 
+ * @param {object|array} items is a single or list of 
+ * objects to be added.
+ * @param {object} options specifies any special requests 
+ * to be made when inserting the items.
+ * @param {cudCallback} is a callback method.
+ */
 DatabaseAdapter.prototype.add = function(items, options, cb) {
   var database = this;
-  database.startTransaction('insert', {}, options, function(err, transaction) {
+  database.startTransaction('insert', items, options, function(err, transaction) {
     if(err) {
       cb(err, { transaction: transaction, results: [] });
     } else {
@@ -113,9 +122,18 @@ DatabaseAdapter.prototype.add = function(items, options, cb) {
   });
 };
 
+/**
+ * Upsert one or more items to the database.
+ * 
+ * @param {object|array} items is a single or list of 
+ * objects to be upserted.
+ * @param {object} options specifies any special requests 
+ * to be made when upserting the items.
+ * @param {cudCallback} is a callback method.
+ */
 DatabaseAdapter.prototype.upsert = function(items, options, cb) {
   var database = this;
-  database.startTransaction({}, function(err, transaction) {
+  database.startTransaction('upsert', items, options, function(err, transaction) {
     if(err) {
       cb(err, { transaction: transaction, results: [] });
     } else {
@@ -142,18 +160,18 @@ DatabaseAdapter.prototype.upsert = function(items, options, cb) {
   });
 };
 
-
-DatabaseAdapter.prototype.addMethod = function(items, options) {
-  var database = this;
-
-  return function(cb) {
-    database.add(items, options, cb);
-  }
-};
-
+/**
+ * Remove one or more items from the database.
+ * 
+ * @param {object|array} items is a single or list of 
+ * objects to be removed.
+ * @param {object} options specifies any special requests 
+ * to be made when removing the items.
+ * @param {cudCallback} is a callback method.
+ */
 DatabaseAdapter.prototype.remove = function(items, options, cb) {
   var database = this;
-  database.startTransaction({}, function(err, transaction) {
+  database.startTransaction('delete', items, options, function(err, transaction) {
     if(err) {
       cb(err, { transaction: transaction, results: [] });
     } else {
@@ -180,14 +198,6 @@ DatabaseAdapter.prototype.remove = function(items, options, cb) {
   });
 };
 
-DatabaseAdapter.prototype.removeMethod = function(items, options) {
-  var database = this;
-
-  return function(cb) {
-    database.remove(items, options, cb);
-  }
-};
-
 
 /* ************************************************** *
  * ******************** Expose API
@@ -212,3 +222,17 @@ exports = DatabaseAdapter;
  * that was modified or found.
  */
 
+/**
+ * A callback used when fixture data is inserted, updated, 
+ * or deleted in the database.  The result data will be an 
+ * array of objects.  Each object will contain a transaction
+ * and result key.  The result key's value will relate to the
+ * data inserted, updated, or deleted.  The transaction key's
+ * data will be related to the transaction used to modify the
+ * data in the database.
+ *
+ * @callback cudCallback
+ * @param {object|undefined} error describes the error that occurred.
+ * @param {array|undefined} result is a list of objects with 
+ * information related to the database action.
+ */
