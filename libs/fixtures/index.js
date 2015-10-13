@@ -3,9 +3,9 @@ module.exports = function(cramit, options) {
   var _ = require('lodash');
 
 
- /* ************************************************** *
-  * ******************** Constructor
-  * ************************************************** */
+  /* ************************************************** *
+   * ******************** Constructor
+   * ************************************************** */
 
   /**
    * Constructor to setup and initialize a new Fixture.
@@ -25,9 +25,9 @@ module.exports = function(cramit, options) {
   };
 
 
- /* ************************************************** *
-  * ******************** Public API
-  * ************************************************** */
+  /* ************************************************** *
+   * ******************** Public API
+   * ************************************************** */
 
   /**
    * Insert all of the fixture's data into the database.
@@ -50,7 +50,6 @@ module.exports = function(cramit, options) {
     this.db.upsert(this.getAll(), this.id, cb);
   };
 
-
   /**
    * Delete all of the fixture's data from the database.
    *
@@ -61,50 +60,138 @@ module.exports = function(cramit, options) {
   };
 
   /**
-   * Delete all of the fixture's data from the database.
+   * Find an item in the schema's database with the
+   * specified ID.
    *
-   * @param {cudCallback} cb is a callback method.
+   * @param {crudOneItemCallback} cb is a callback 
+   * method.
    */
   Fixture.prototype.findById = function(id, cb) {
     this.db.findItemById(this.id, id, cb);
   };
 
   /**
-   * Delete all of the fixture's data from the database.
+   * Find an item in the fixture's dataset with 
+   * the specified ID.
    *
-   * @param {cudCallback} cb is a callback method.
+   * @param {crudOneItemCallback} cb is a callback 
+   * method.
    */
-  Fixture.prototype.findDataById = function(id, cb) {
-    this.db.
-    var items = this.getAll();
+  Fixture.prototype.findInDatasetById = function(id, cb) {
+    var items = this.getAllAndNew();
     for(var i = 0; i < items.length; i++) {
-      if(items[i]._id == id) {
+      if(items[i][this.idAttributeName] == id) {
         return cb(undefined, items[i]);
       }
     }
     cb();
   };
 
-  Fixture.prototype.populate = function(v, cb) {
-    if( ! user) {
-      cb();
-    } else if(_.isObject(v)) {
-      cb(undefined, v);
-    } else if(_.isString(v)){
-      this.findById(v, cb);
+  /**
+   * Populates an item by ID if possible.  If an 
+   * object is already populated it will just be 
+   * returned.  If the value is not a valid, then 
+   * undefined will be returned and a warning logged.
+   * 
+   * @param {object|string|undefined} value is the id to populate.
+   * @param {crudOneItemCallback} is a callback method.
+   */
+  Fixture.prototype.populateId = function(value, cb) {
+    if(_.isObject(value)) {
+      cb(undefined, value);
+    } else if(_.isString(value)){
+      this.findById(value, cb);
     } else {
-      cb();
+      cramit.log.w("Fixture.populateId():  Invalid value %s", value);
+      cb(undefined, undefined);
     }
   };
 
+  /**
+   * Populates a list of items by ID if possible.  
+   * If an object in the list is already populated
+   * it will be left alone.  However if a value is,
+   * not valid then undefined will be returned in 
+   * it's place and a warning logged.
+   * 
+   * @param {array} values is the list of ids to populate.
+   * @param {crudMultipleItemsCallback} is a callback method.
+   */
+  Fixture.prototype.populateIds = function(values, cb) {
+    var fixture = this;
+
+    var tasks = [];
+    for(var i = 0; i < values.length; i++) {
+      tasks.push(fixture.createPopulateIdMethod(values[i]))
+    }
+  
+    async.parallel(tasks, cb);
+  };
+
+  /**
+   * Populates an item by ID from the dataset if possible.  
+   * If an object is already populated it will just be 
+   * returned.  If the value is not a valid, then 
+   * undefined will be returned and a warning logged.
+   * 
+   * @param {object|string|undefined} value is the id to populate.
+   * @param {crudOneItemCallback} is a callback method.
+   */
+  Fixture.prototype.populateIdFromDataset = function(value, cb) {
+    if(_.isObject(value)) {
+      cb(undefined, value);
+    } else if(_.isString(value)){
+      this.findInDatasetById(value, cb);
+    } else {
+      cb(undefined, value);
+    }
+  };
+
+  /**
+   * Populates a list of items by ID from the dataset 
+   * if possible.  If an object in the list is already 
+   * populated it will be left alone.  However if a 
+   * value is, not valid then undefined will be returned
+   * in it's place and a warning logged.
+   * 
+   * @param {array} values is the list of ids to populate.
+   * @param {crudMultipleItemsCallback} is a callback method.
+   */
+  Fixture.prototype.populateIdsFromDataset = function(values, cb) {
+    var fixture = this;
+
+    var tasks = [];
+    for(var i = 0; i < values.length; i++) {
+      tasks.push(fixture.createPopulateIdsFromDatasetMethod(values[i]))
+    }
+  
+    async.parallel(tasks, cb);
+  };
+
+  /**
+   * Fixtures that inherit this class should override
+   * this method.
+   * 
+   * @return {object} a new item that is not already
+   * in the main dataset.
+   */
   Fixture.prototype.getNew = function() {
     return {};
   };
 
+  /**
+   * Fixtures that inherit this class should override
+   * this method.
+   * 
+   * @return {array} the main list of items
+   */
   Fixture.prototype.getAll = function() {
     return [];
   };
 
+  /** 
+   * @return {array} the entire list of items.
+   */
   Fixture.prototype.getAllAndNew = function() {
     var items = this.getAll();
     items.push(this.getNew());
@@ -112,9 +199,39 @@ module.exports = function(cramit, options) {
   };
 
 
-/* ************************************************** *
- * ******************** Expose Fixture
- * ************************************************** */
+  /* ************************************************** *
+   * ******************** Private API
+   * ************************************************** */
+
+  /**
+   * Create an asynchronous method to populate an ID.
+   * @param {object|string|undefined} value is the id to populate.
+   * @return {asyncFunction} is populateId method.
+   */
+  Fixture.prototype.createPopulateIdMethod = function(value) { 
+    var fixture = this;
+    return function(cb) {
+      fixture.populateId(value, cb);
+    }
+  }
+
+  /**
+   * Create an asynchronous method to populate an ID using 
+   * the fixture's dataset.
+   * @param {object|string|undefined} value is the id to populate.
+   * @return {asyncFunction} is populateId method.
+   */
+  Fixture.prototype.createPopulateIdFromDatasetMethod = function(value) { 
+    var fixture = this;
+    return function(cb) {
+      fixture.populateIdFromDataset(value, cb);
+    }
+  }
+
+
+  /* ************************************************** *
+   * ******************** Expose Fixture
+   * ************************************************** */
 
   return Fixture;
 
@@ -138,5 +255,36 @@ module.exports = function(cramit, options) {
  * @param {object|undefined} error describes the error that occurred.
  * @param {array|undefined} result is a list of objects with 
  * information related to the database action.
+ */
+
+/**
+ * A callback used when fixture data is queried, inserted, 
+ * updated, or deleted in the database or dataset.  The 
+ * result data will be the object or modified object.
+ *
+ * @callback crudOneItemCallback
+ * @param {object|undefined} error describes the error that 
+ * occurred.
+ * @param {object|undefined} result is the object.
+ */
+
+/**
+ * A callback used when fixture data is queried, inserted, 
+ * updated, or deleted in the database or dataset.  The 
+ * result data will be an array of objects or modified objects.
+ *
+ * @callback crudMultipleItemsCallback
+ * @param {object|undefined} error describes the error that 
+ * occurred.
+ * @param {array|undefined} result is the array of objects.
+ */
+
+/**
+ * An asynchronous function that accepts only a callback as the parameter.
+ * All results will be passed to the callback with the first parameter
+ * being an error.
+ *
+ * @callback asyncFunction
+ * @param {function} cb is a callback method.
  */
 
