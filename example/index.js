@@ -26,18 +26,22 @@ var connectToDatabase = function(cb) {
     console.log(err);
   });
   mongoose.connection.once('open', function() {
+    console.log(mongoose);
     cb();
   });
+  //cb();
 }
 
 
 
 // Method to connect to database and start the server.
-var start = function(err) {
+var start = function(err, results, values) {
   if(err) {
     console.log(err);
   } else {
 
+    console.log(results);
+    console.log(values);
     connectToDatabase(function() {
       
       var server = app.listen(3001, function() {
@@ -90,4 +94,4 @@ crave.setConfig({
 });
 
 // Recursively load all files of the specified type(s) that are also located in the specified folder.
-crave.directory(applicationPath, [ "model" ], start, app, cramit);
+crave.directory(applicationPath, [ "model" ], start);

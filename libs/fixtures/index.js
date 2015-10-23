@@ -35,7 +35,7 @@ module.exports = function(cramit, options) {
    * @param {cudCallback} cb is a callback method.
    */
   Fixture.prototype.insertAll = function(cb) {
-    this.db.add(this.getAll(), this.id, cb);
+    this.db.add(this.getAll(), { fixtureId: this.id }, cb);
   };
 
   /**
@@ -47,7 +47,7 @@ module.exports = function(cramit, options) {
    * @param {cudCallback} cb is a callback method.
    */
   Fixture.prototype.upsertAll = function(cb) {
-    this.db.upsert(this.getAll(), this.id, cb);
+    this.db.upsert(this.getAll(), { fixtureId: this.id }, cb);
   };
 
   /**
@@ -56,7 +56,7 @@ module.exports = function(cramit, options) {
    * @param {cudCallback} cb is a callback method.
    */
   Fixture.prototype.deleteAll = function(cb) {
-    this.db.remove(this.getAllAndNew(), this.id, cb);
+    this.db.remove(this.getAllAndNew(), { fixtureId: this.id }, cb);
   };
 
   /**
@@ -198,10 +198,162 @@ module.exports = function(cramit, options) {
     return items;
   };
 
+  /**
+   * Compare two objects of the fixture's model 
+   * type.  When strict checking is enabled, 
+   * the two objects must be exactly the same.
+   * When in non-strict mode, only attributes 
+   * in expected will be checked for in the
+   * actual object.
+   * 
+   * Fixtures that inherit this class may want to 
+   * override this method.
+   * 
+   * @param {Object} actual is the object to compare too.
+   * @param {Object} expected is the object used to compare.
+   * @param {compareCallback} cb is a callback method.
+   * @param {Boolean} strict enables or disables strict mode.
+   */
+  Fixture.prototype.compare = function(actual, expected, cb, strict) {
+    this.compareSuper(actual, expected, cb, strict);
+  };
+
+  /**
+   * Compare two objects of the fixture's model 
+   * type.  When strict checking is enabled, 
+   * the two objects must be exactly the same.
+   * When in non-strict mode, only attributes 
+   * in expected will be checked for in the
+   * actual object.
+   * 
+   * Fixtures that inherit this class may want to 
+   * override the compare method.  They can then 
+   * choose to call this super method to perform 
+   * further checking.
+   * 
+   * @param {Object} actual is the object to compare too.
+   * @param {Object} expected is the object used to compare.
+   * @param {compareCallback} cb is a callback method.
+   * @param {Boolean} strict enables or disables strict mode.
+   */
+  Fixture.prototype.compareSuper = function(actual, expected, cb, strict) {
+    var fixture = this;
+
+    // Make sure expected and actual are valid objects to compare to each other.
+    if( ! expected || ! _.isObject(expected)) {
+      if(actual === expected) {
+        return cb(undefined, true);
+      } else if(strict || ! actual || ! _.isObject(actual)) {
+        return cb(undefined, false);
+      } else {
+        return cb(undefined, true);
+      }
+
+    // If the expected object is valid, check if the actual object is valid too.
+    } else if( ! actual || ! _.isObject(actual)) {
+      return cb(cramit.error.build('compare expected an object, but recieved ' + actual, 400), false);
+    }
+
+    var actualNumberAttributes = Object.keys(actual).length,
+      expectedNumberAttributes = Object.keys(expected).length;
+
+    // Make sure the expected number of attributes exist in the actual object.
+    if(strict && actualNumberAttributes != expectedNumberAttributes) {
+      return cb(cramit.error.build('object contains '+actualNumberAttributes+' attributes when '+expectedNumberAttributes+' attributes were expected in strict mode.', 400), false);
+    }
+
+    // Check for each expected attribute.
+    for(var key in expected) {
+      if(expected.hasOwnProperty(key)) {
+        
+        // In strict mode, every expected attribute must be defined.
+        if( ! expected[key]) {
+          if(strict === true) {
+            return cb(cramit.error.build(fixture.id+' Fixture: '+key+' attribute is required in the expected object when using strict mode.'), false);
+          }
+        } else {
+
+          switch(typeof expected[key]) {
+            
+            default:  // In strict mode, every attribute must be a model attribute.
+              console.log(fixture.id+' Fixture: Unknown type: ' + typeof expected[key])
+              //if(strict) {
+              //  return cb(cramit.error.build('expecting an unknown attribute "'+key+'" is not allowed in strict mode.', 500), false);
+             // }
+              break;
+
+            // Object ID?
+            case 'object':
+              //if( ! expected[key].equals(actual[key])) {
+              //  return cb(cramit.error.build(key+' is "'+actual[key]+'" when expected to be "'+expected[key]+'".', 500), false);
+             // }
+              break;
+
+            // Boolean
+            case 'boolean':
+              if(expected[key] !== actual[key]) {
+                return cb(cramit.error.build(fixture.id+' Fixture: Boolean '+key+' is "'+actual[key]+'" when expected to be "'+expected[key]+'".', 500), false);
+              }
+              break;
+
+            // Strings
+            case 'string':
+              if(expected[key] != actual[key]) {
+                return cb(cramit.error.build(fixture.id+' Fixture: String '+key+' is "'+actual[key]+'" when expected to be "'+expected[key]+'".', 500), false);
+              }
+              break; 
+
+            // Date
+            case 'date':
+              break; 
+
+            // Number
+            case 'number':
+              if(expected[key] !== actual[key]) {
+                if(_.isDate(actual[key]) || _.isDate(expected[key])) {
+                  if(fixture.dateDiff(new Date(actual[key]), new Date(expected[key])) === 0) {
+                    return cb(undefined, true);
+                  }
+                }
+                return cb(cramit.error.build(fixture.id+' Fixture: Number '+key+' is "'+actual[key]+'" when expected to be "'+expected[key]+'".', 500), false);
+              }
+              break;
+          }
+
+        }
+      }
+    }
+
+    cb(undefined, true);
+  }
+
 
   /* ************************************************** *
    * ******************** Private API
    * ************************************************** */
+
+  /**
+   * Returns the difference between two dates.  A Positive
+   * number is a date in the future where negative is in the past.
+   * If either parameter is not a valid date, undefined will be returned.
+   * @param a is the minuend date value.
+   * @param b is the subtrahend date value.
+   * @param isDLS when true the remainder will include Daylight Savings Time.
+   */
+  Fixture.prototype.dateDiff = function(a, b, isDLS) {
+    if(_.isDate(a) && _.isDate(b)) {
+      if(isDLS) {
+        return (a.getTime() - b.getTime());
+      } else {
+        // Discard the time and time-zone information.
+        var utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+        var utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+        return (utc1 - utc2);
+      }
+    }
+
+    return undefined;
+  };
 
   /**
    * Create an asynchronous method to populate an ID.
@@ -286,5 +438,16 @@ module.exports = function(cramit, options) {
  *
  * @callback asyncFunction
  * @param {function} cb is a callback method.
+ */
+
+/**
+ * A callback used to return the results of comparing two 
+ * objects.
+ *
+ * @callback compareCallback
+ * @param {object|undefined} error describes the error that 
+ * occurred.
+ * @param {boolean} result describes if the two objects are 
+ * equal or not.
  */
 

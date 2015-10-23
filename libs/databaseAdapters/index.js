@@ -97,23 +97,23 @@ DatabaseAdapter.prototype.add = function(items, options, cb) {
   var database = this;
   database.startTransaction('insert', items, options, function(err, transaction) {
     if(err) {
-      cb(err, { transaction: transaction, results: [] });
+      cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: [] });
     } else {
-      database.addItems(items, options, function(err, results) {
+      database.addItems(items, options.fixtureId, function(err, results) {
         if(err) {
           database.failedTransaction(transaction, err, function(transactionError, transaction) {
             if(transactionError) {
-              cb([err, transactionError], { transaction: transaction, results: results });
+              cb([err, transactionError], { fixtureId: options.fixtureId, transaction: transaction, results: results });
             } else {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             }
           });
         } else {
           database.endTransaction(transaction, function(err, transaction) {
             if(err) {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             } else {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             }
           });
         }
@@ -135,23 +135,23 @@ DatabaseAdapter.prototype.upsert = function(items, options, cb) {
   var database = this;
   database.startTransaction('upsert', items, options, function(err, transaction) {
     if(err) {
-      cb(err, { transaction: transaction, results: [] });
+      cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: [] });
     } else {
-      database.upsertItems(items, options, function(err, results) {
+      database.upsertItems(items, options.fixtureId, function(err, results) {
         if(err) {
           database.failedTransaction(transaction, err, function(transactionError, transaction) {
             if(transactionError) {
-              cb([err, transactionError], { transaction: transaction, results: results });
+              cb([err, transactionError], { fixtureId: options.fixtureId, transaction: transaction, results: results });
             } else {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             }
           });
         } else {
           database.endTransaction(transaction, function(err, transaction) {
             if(err) {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             } else {
-              cb(undefined, { transaction: transaction, results: results });
+              cb(undefined, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             }
           });
         }
@@ -173,23 +173,23 @@ DatabaseAdapter.prototype.remove = function(items, options, cb) {
   var database = this;
   database.startTransaction('delete', items, options, function(err, transaction) {
     if(err) {
-      cb(err, { transaction: transaction, results: [] });
+      cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: [] });
     } else {
-      database.removeItems(items, options, function(err, results) {
+      database.removeItems(items, options.fixtureId, function(err, results) {
         if(err) {
           database.failedTransaction(transaction, err, function(transactionError, transaction) {
             if(transactionError) {
-              cb([err, transactionError], { transaction: transaction, results: results });
+              cb([err, transactionError], { fixtureId: options.fixtureId, transaction: transaction, results: results });
             } else {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             }
           });
         } else {
           database.endTransaction(transaction, function(err, transaction) {
             if(err) {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             } else {
-              cb(err, { transaction: transaction, results: results });
+              cb(err, { fixtureId: options.fixtureId, transaction: transaction, results: results });
             }
           });
         }

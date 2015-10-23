@@ -1,8 +1,5 @@
 /**
  * Defines a user account in the application.
- * @param app is the express application object.
- * @param config is the server's configuration object.
- * @param log is the server's current logger instance.
  */
 module.exports = function() {
 
@@ -14,8 +11,6 @@ module.exports = function() {
 
   // External and internal modules.
   var db = require('mongoose');
-  console.log("User Model");
-  console.log(mongoose);
 
   // Reference to the mongoose ObjectId type.
   var ObjectId = db.Schema.ObjectId;

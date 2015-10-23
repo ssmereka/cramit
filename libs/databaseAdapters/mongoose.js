@@ -24,8 +24,10 @@ module.exports = function(cramit) {
     this.idAttributeName = cramit.config.database.idAttributeName || '_id';
 
     if( ! cramit.config.database.instance) {
-      // TODO: Handle mongoose not defined.
+      //console.log("MongooseAdapter():  Require Mongoose.");
+      this.mongoose = require('mongoose');
     } else {
+      //console.log("MongooseAdapter():  Using Mongoose instance.");
       this.mongoose = cramit.config.database.instance;
     }
     
@@ -34,6 +36,68 @@ module.exports = function(cramit) {
 
   // Inherits the DatabaseAdapter parent class's methods and variables.
   MongooseAdapter.prototype = cramit.inherit(DatabaseAdapter.prototype);
+
+
+  /* ************************************************** *
+   * ******************** Transaction Methods
+   * ************************************************** */
+
+  MongooseAdapter.prototype.createMongooseTransactionEventMethod = function(transaction, cb) {
+    var adapter = this;
+    return function(err) {
+      if(err) {
+        adapter.log.error(err);
+      }
+
+      if(cb) {
+        cb(err, transaction || {});
+      }
+    }
+  }
+
+  /**
+   * Called before any database action is taken.  Allows
+   * the adapter to track actions or pre-perform tasks.
+   *
+   * Notice:  This method should be overridden by any 
+   * classes that inherit DatabaseAdapter and require
+   * transactions.
+   * 
+   * @param {string} type is the type of transaction.
+   * @param {object|array} items is the object or list 
+   * of objects to be modified or queried.
+   * @param {object} options is any additional settings 
+   * included with the database operation.
+   * @param  {transactionCallback} is a callback method.
+   */
+  MongooseAdapter.prototype.startTransaction = function(type, items, options, cb) {
+    var adapter = this,
+      transaction = {};
+
+    if( ! adapter.mongoose) {
+      cb(cramit.error.build('MongooseAdapter.startTransaction():  Database "Mongoose" was never initalized.', 500));
+    } else if( ! adapter.mongoose.connection) {
+      cb(cramit.error.build('MongooseAdapter.startTransaction():  Mongoose connection was never initalized.', 500));
+    } else if(adapter.mongoose.connection.readyState !== 1){
+      //console.log(adapter.mongoose.connection.readyState);
+      //console.log("MongooseAdapter.startTransaction():  Mongoose not connected.");
+      
+      // Make sure the connection URI is specified.
+      if( ! cramit.config.database.connectionUri) {
+        cramit.config.database.connectionUri = 'mongodb://localhost/cramit';
+        cramit.log.warn('Database not connected and the Mongoose connection URI is not specified, defaulting to %s', cramit.config.database.connectionUri)
+      }
+
+      // Handle when mongoose connects and/or errors.
+      adapter.mongoose.connection.on('error', adapter.createMongooseTransactionEventMethod(transaction, cb));
+      adapter.mongoose.connection.once('connected', adapter.createMongooseTransactionEventMethod(transaction, cb)); 
+      
+      // Start connecting to the database.
+      adapter.mongoose.connect(cramit.config.database.connectionUri || 'mongodb://localhost/cramit');
+    } else {
+      cb(undefined, transaction);
+    }
+  };
 
 
   /* ************************************************** *
@@ -230,8 +294,11 @@ module.exports = function(cramit) {
     adapter.findItemById(schemaName, id, function(err, item){
       if(err) {
         cb(err);
+      } else if( ! item) {
+        cramit.log.trace("Schema %s with item id %s already removed.", schemaName, id);
+        cb();
       } else {
-        data.remove(function(err, removedItem) {
+        item.remove(function(err, removedItem) {
           if(err) {
             cb(err);
           } else {
@@ -470,7 +537,7 @@ module.exports = function(cramit) {
     var adapter = this;
 
     return function(cb) { 
-      adapter.removeItemById(schemaName, item, cb);
+      adapter.removeItemById(schemaName, id, cb);
     }
   };
 

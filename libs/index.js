@@ -14,6 +14,7 @@ var fixturesFolder = path.resolve(__dirname, '.'+path.sep+'fixtures') + path.sep
 // Default configuration object.
 var defaultConfig = {
   database: {
+    connectionUri: undefined,
     idAttributeName: undefined,
     instance: undefined,
     type: undefined
@@ -400,14 +401,53 @@ Cramit.prototype.insertFixtureData = function(fixtures, cb) {
     cb = function(err) { if(err) { this.log.error(err); } };
   }
 
-  for(var id in fixtures) {
-    if(fixtures.hasOwnProperty(id)) {
-      tasks.push(this.createInsertAllFixtureDataMethod(fixtures[id]));
-    }
-  }
+  cramit.formatFixtures(fixtures, function(err, fixtures) {
+    if(err) {
+      cb(err);
+    } else {
+      for(var id in fixtures) {
+        if(fixtures.hasOwnProperty(id)) {
+          tasks.push(cramit.createInsertAllFixtureDataMethod(fixtures[id]));
+        }
+      }
 
-  async.parallel(tasks, cb);
+      async.parallel(tasks, cb);
+    }
+  });
 };
+
+Cramit.prototype.formatFixtures = function(fixtures, cb) {
+  var fixturesObject = {};
+
+  if( _.isArray(fixtures)) {
+
+    for(var i = 0; i < fixtures.length; i++) {
+      if(fixtures[i] !== undefined && fixtures[i].error === undefined && fixtures[i].id !== undefined) {
+        fixturesObject[fixtures[i].id] = fixtures[i];
+      }
+    }
+    cb(undefined, fixturesObject);
+
+  } else if( _.isObject(fixtures)) {
+    
+    if(fixtures.id !== undefined && fixtures.error === undefined) {
+      fixturesObject[fixtures.id] = fixtures;
+      cb(undefined, fixturesObject);
+    } else {
+      for(var key in fixtures) {
+        if(fixtures.hasOwnProperty(key)) {
+          if(fixtures[key] !== undefined && fixtures[key].id !== undefined) {
+            fixturesObject[key] = fixtures[key];
+          }
+        }
+      }
+      cb(undefined, fixturesObject);
+    }
+
+  } else {
+    cb(undefined, fixturesObject);
+  }
+}
 
 /**
  * Delete all data found in a list of fixtures.
@@ -428,13 +468,19 @@ Cramit.prototype.removeFixtureData = function(fixtures, cb) {
     cb = function(err) { if(err) { console.log(err); } };
   }
 
-  for(var id in fixtures) {
-    if(fixtures.hasOwnProperty(id)) {
-      tasks.push(this.createDeleteAllFixtureDataMethod(fixtures[id]));
-    }
-  }
+  cramit.formatFixtures(fixtures, function(err, fixtures) {
+    if(err) {
+      cb(err);
+    } else {
+      for(var id in fixtures) {
+        if(fixtures.hasOwnProperty(id)) {
+          tasks.push(cramit.createDeleteAllFixtureDataMethod(fixtures[id]));
+        }
+      }
 
-  async.parallel(tasks, cb);
+      async.parallel(tasks, cb);
+    }
+  });
 };
 
 /**
@@ -459,13 +505,19 @@ Cramit.prototype.upsertFixtureData = function(fixtures, cb) {
     cb = function(err) { if(err) { cramit.log.error(err); } };
   }
 
-  for(var id in fixtures) {
-    if(fixtures.hasOwnProperty(id)) {
-      tasks.push(this.createUpsertAllFixtureDataMethod(fixtures[id]));
-    }
-  }
+  cramit.formatFixtures(fixtures, function(err, fixtures) {
+    if(err) {
+      cb(err);
+    } else {
+      for(var id in fixtures) {
+        if(fixtures.hasOwnProperty(id)) {
+          tasks.push(cramit.createUpsertAllFixtureDataMethod(fixtures[id]));
+        }
+      }
 
-  async.parallel(tasks, cb);
+      async.parallel(tasks, cb);
+    }
+  });
 };
 
 
