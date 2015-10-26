@@ -6,11 +6,23 @@
 var assert = require('assert'),
     async = require('async'),
     cramit = require('../../libs/index.js')(),
+    //cramit = Cramit(),
     crave = require('crave'),
     fs = require("fs"),
+    mongoose = require('mongoose'),
     path = require("path"),
     should = require("should"),
     _ = require("lodash");
+
+var cramitDefaultConfig = {
+  database: {
+    connectionUri: 'mongodb://localhost/cramit',
+    type: 'mongoose',
+    instance: mongoose
+  }
+};
+//cramit = Cramit(cramitDefaultConfig);
+//cramit.setConfig(cramitDefaultConfig);
 
 var applicationPath = path.resolve('./test/app');
 
@@ -19,12 +31,12 @@ var ApplicationFixture = require('../app/applications/application_fixture.js'),
   UserFixture = require('../app/users/user_fixture.js'),
   UserModel = require('../app/users/user_model.js');  
 
+
 var allFixturesArray,
   allFixturesObject,
   allFixtureDataObject,
   applicationFixture,
   userFixture;
-
 
 /* ************************************************** *
  * ******************** Private Methods
@@ -68,6 +80,14 @@ var loadFixtures = function(cb) {
     }
   });
 };
+
+var toUserExpectedValue = function(obj) {
+  if( ! obj['passwordHash'] && obj['password']) {
+    obj['passwordHash'] = obj['password'];
+  }
+  return obj;
+}
+
 
 var createCompareMethod = function(fixture, actual, expected, strict) {
   return function(cb) {
