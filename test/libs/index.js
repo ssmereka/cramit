@@ -6,23 +6,11 @@
 var assert = require('assert'),
     async = require('async'),
     cramit = require('../../libs/index.js')(),
-    //cramit = Cramit(),
     crave = require('crave'),
     fs = require("fs"),
-    //mongoose = require('mongoose'),
     path = require("path"),
     should = require("should"),
     _ = require("lodash");
-
-/*var cramitDefaultConfig = {
-  database: {
-    connectionUri: 'mongodb://localhost/cramit',
-    type: 'mongoose',
-    instance: mongoose
-  }
-};*/
-//cramit = Cramit(cramitDefaultConfig);
-//cramit.setConfig(cramitDefaultConfig);
 
 var applicationPath = path.resolve('./test/app');
 
