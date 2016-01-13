@@ -34,7 +34,7 @@ var defaultConfig = {
 var defaultLogConfig = {
   level: 40, //Information about Levels https://github.com/trentm/node-bunyan#levels
   name: 'Cramit'
-}
+};
 
 
 /* ************************************************** *

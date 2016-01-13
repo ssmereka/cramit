@@ -57,7 +57,7 @@ var loadModels = function(cb) {
 
   // Recursively load all files of the specified type(s) that are also located in the specified folder.
   crave.directory(applicationPath, [ "model" ], cb);
-}
+};
 
 var loadFixtures = function(cb) {
   userFixture = UserFixture(cramit);
@@ -86,14 +86,14 @@ var toUserExpectedValue = function(obj) {
     obj['passwordHash'] = obj['password'];
   }
   return obj;
-}
+};
 
 
 var createCompareMethod = function(fixture, actual, expected, strict) {
   return function(cb) {
     fixture.compare(actual, expected, cb, strict);
   }
-}
+};
 
 var verifyCrudResult = function(actual, expected, cb) {
   assert.equal(_.isArray(actual), true);
@@ -118,7 +118,7 @@ var verifyCrudResult = function(actual, expected, cb) {
       cb();
     }
   });
-}
+};
 
 
 /* ************************************************** *
