@@ -128,6 +128,7 @@ var verifyCrudResult = function(actual, expected, cb) {
 describe('Cramit', function() {
 
   before(function(done) {
+    this.timeout(5000);
     cramit.setConfig(cramitDefaultConfig);
     loadModels(function(err, results, values) {
       if(err) {
@@ -139,6 +140,7 @@ describe('Cramit', function() {
   });
 
   afterEach(function(done) {
+    this.timeout(5000);
     cramit.setConfig();
     cramit.setConfig(cramitDefaultConfig);
     cramit.setLog();
