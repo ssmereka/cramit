@@ -182,7 +182,6 @@ When implementing a fixture you may want to override one or more methods.  The f
 The current implementation of these methods can be found <a href="https://github.com/ssmereka/cramit/blob/master/libs/fixtures/index.js" target="_blank">here</a>.
 
 
-<a href="config" />
 # Config
 You can configure Cramit using the <a href="https://github.com/ssmereka/cramit/wiki/API#set-config" target="_blank">setConfig(myConfigObject)</a> method.  Pass along an object with any of the properties you wish to override.  For example:
 
@@ -219,7 +218,7 @@ Debugging Cramit can be done using the ```debug```, ```trace```, and ```error```
 
 # Documentation
 
-Further documentation can be found in the [wiki](https://github.com/ssmereka/cramit/wiki).
+Further documentation can be found in the <a href="https://github.com/ssmereka/cramit/wiki" target="_blank">wiki</a>.
 
 
 ### <a href="http://www.tldrlegal.com/license/mit-license" target="_blank">MIT License</a>
