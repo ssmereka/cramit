@@ -66,7 +66,7 @@ module.exports = function(cramit, options) {
 };
 ```
 
-After the fixtures have been created you can call findAllFixturesAndUpsertData().  This will search for all fixture files and upsert the data returned from each fixture's getAll() method.
+After the fixtures have been created you can call <a href="https://github.com/ssmereka/cramit/wiki/API#find-all-fixtures-and-upsert-data" target="_blank">findAllFixturesAndUpsertData()</a>.  This will search for all fixture files and upsert the data returned from each fixture's <a href="https://github.com/ssmereka/cramit/wiki/Fixture#get-all" target="_blank">getAll()</a> method.
 
 ```javascript
 cramit.findAllFixturesAndUpsertData(applicationPath, {}, function(err, results) {
@@ -176,7 +176,7 @@ When implementing a fixture you may want to override one or more methods.  The f
   * [Populate IDs from Dataset](https://github.com/ssmereka/cramit/wiki/Fixture#populate-ids-from-dataset)
   * [Upsert All](https://github.com/ssmereka/cramit/wiki/Fixture#upsert-all)
 
-The current implementation of these methods can be found <a href="https://github.com/ssmereka/cramit/blob/master/libs/fixtures/index.js">here</a>.
+The current implementation of these methods can be found <a href="https://github.com/ssmereka/cramit/blob/master/libs/fixtures/index.js" target="_blank">here</a>.
 
 
 <a href="config" />
@@ -199,7 +199,7 @@ The available properties are:
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| **crave** | Object |  | Accepts a <a href="https://github.com/ssmereka/crave/blob/master/readme.md#config">crave configuration object</a> to define how models and fixtures are required. |
+| **crave** | Object |  | Accepts a <a href="https://github.com/ssmereka/crave/blob/master/readme.md#config" target="_blank">crave configuration object</a> to define how models and fixtures are required. |
 | **database** | Object |  | An object containing configuration properties related to the database. |
 | **database.connectionUri** | String | ```undefined``` | The URI used to connect to a database.  You may alternately choose to specify the database instance. |
 | **database.idAttributeName** | String | ```undefined``` | The key used by all records as the unique identifier.  For example mongoose uses ```_id```. |
