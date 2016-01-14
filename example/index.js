@@ -30,7 +30,7 @@ var connectToDatabase = function(cb) {
     cb();
   });
   //cb();
-}
+};
 
 
 

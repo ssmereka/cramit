@@ -202,9 +202,8 @@ module.exports = function(cramit, options) {
    * Compare two objects of the fixture's model 
    * type.  When strict checking is enabled, 
    * the two objects must be exactly the same.
-   * When in non-strict mode, only attributes 
-   * in expected will be checked for in the
-   * actual object.
+   * When in non-strict mode, only certain attributes
+   * will be checked for in the actual object.
    * 
    * Fixtures that inherit this class may want to 
    * override this method.
@@ -325,7 +324,7 @@ module.exports = function(cramit, options) {
     }
 
     cb(undefined, true);
-  }
+  };
 
 
   /* ************************************************** *
@@ -365,7 +364,7 @@ module.exports = function(cramit, options) {
     return function(cb) {
       fixture.populateId(value, cb);
     }
-  }
+  };
 
   /**
    * Create an asynchronous method to populate an ID using 
@@ -378,7 +377,7 @@ module.exports = function(cramit, options) {
     return function(cb) {
       fixture.populateIdFromDataset(value, cb);
     }
-  }
+  };
 
 
   /* ************************************************** *
@@ -387,7 +386,7 @@ module.exports = function(cramit, options) {
 
   return Fixture;
 
-}
+};
 
 
 /* ************************************************** *
@@ -450,4 +449,3 @@ module.exports = function(cramit, options) {
  * @param {boolean} result describes if the two objects are 
  * equal or not.
  */
-
