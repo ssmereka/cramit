@@ -166,8 +166,8 @@ module.exports = function(cramit, options) {
 When implementing a fixture you may want to override one or more methods.  The following is a list of possible methods.
 
   * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#compare" target="_blank">Compare</a>
-  * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#compare" target="_blank">Delete All</a>
-  * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#delete-all" target="_blank">Find By ID</a>
+  * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#delete-all" target="_blank">Delete All</a>
+  * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#find-by-id" target="_blank">Find By ID</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#find-in-dataset-by-id" target="_blank">Find In Dataset By ID</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#get-all" target="_blank">Get All</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/Fixture#get-all-and-new" target="_blank">Get All and New</a>
