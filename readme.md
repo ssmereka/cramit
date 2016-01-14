@@ -21,7 +21,7 @@ You can require Cramit just like every other node.js module.
 var cramit = require('cramit');
 ```
 
-In order to define the data that will be added or removed from the database one or more [fixtures](https://github.com/ssmereka/cramit#fixture) must be created.  Note that the fixture file names must follow the configuration you set for [Crave](https://github.com/ssmereka/crave/blob/master/readme.md#config) in [Cramit's configuration object](https://github.com/ssmereka/cramit#config).  By default, Crave looks for and requires any file that contains "_fixture" in the name.
+In order to define the data that will be added or removed from the database one or more [fixtures](https://github.com/ssmereka/cramit#fixture) must be created.  Note that the fixture file names must follow the configuration you set for <a href="https://github.com/ssmereka/crave/blob/master/readme.md#config" target="_blank">Crave</a> in [Cramit's configuration object](https://github.com/ssmereka/cramit#config).  By default, Crave looks for and requires any file that contains "_fixture" in the name.
 
 ```javascript
 // Filename: user_fixture.js
