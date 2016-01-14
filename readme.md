@@ -7,7 +7,6 @@
 Cram data into your database easily for testing, demos, or whatever.
 
 
-<a href="gettingStarted" />
 # Getting Started
 
 Install Cramit using npm and save it as a dependency in your package.json.
@@ -95,7 +94,6 @@ The Cramit API consists of the following methods.
   * [Upsert Fixture Data](https://github.com/ssmereka/cramit/wiki/API#upsert-fixture-data)
 
 
-<a href="fixture" />
 # Fixture
 Data you want to load into a database is defined in a fixture.  A fixture is a pseudo "child class" that overrides a few methods called by the Cramit library.  The data methods overridden in a fixture, such as ```getNew()``` and ```getAll()```, return data objects to be loaded into the database.  Let's look at an example of a user model and fixture.
 
@@ -211,16 +209,14 @@ The available properties are:
 | **error** | Boolean | ```true``` | When true, Cramit will display error log messages. |
 | **trace** | Boolean | ```false``` | When true, Cramit will display trace log messages. |
 
-<a href="debug" />
+
 # Debug
 Debugging cramit can be done using the ```debug```, ```trace```, and ```error``` flags that can be toggled on/off using the config.  When enabling these flags additional logging will be enabled allowing you to find issues within Crave easier.
 
 
-<a href="documentation" />
 # Documentation
 
 Further documentation can be found in the [wiki](https://github.com/ssmereka/cramit/wiki).
 
 
-<a href="license" />
 ### <a href="http://www.tldrlegal.com/license/mit-license" target="_blank">MIT License</a>
