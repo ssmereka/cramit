@@ -110,6 +110,18 @@ Cramit.prototype.setConfig = function(config, initalize) {
 };
 
 /**
+ * Set the database instance to the specified value.
+ * @param databaseInstance is the new database instance value.
+ */
+Cramit.prototype.setDatabaseInstance = function(databaseInstance) {
+  if( ! config || ! _.isObject(config)) {
+    this.config = JSON.parse(JSON.stringify(defaultConfig));
+  }
+  this.config.database.instance = databaseInstance;
+  this.setDatabaseAdapter();
+};
+
+/**
  * Set or configure the Cramit bunyan log instace.
  *
  * Passing a value of undefined for both the config
@@ -244,11 +256,9 @@ Cramit.prototype.findAllFixtures = function(applicationPath, options, cb) {
     }
   };
 
-  
-
   // Recursively load all data files that are located in the apps folder.
   crave.directory(applicationPath, ["fixture"], formatFixtures, cramit, options);
-}
+};
 
 /**
  * Uses the module Crave to find all fixtures in a given 
@@ -283,7 +293,7 @@ Cramit.prototype.findAllFixturesAndInsertData = function(applicationPath, option
       cramit.insertFixtureData(fixtures, cb);
     }
   });
-}
+};
 
 /**
  * Uses the module Crave to find all fixtures in a given 
@@ -318,7 +328,7 @@ Cramit.prototype.findAllFixturesAndRemoveData = function(applicationPath, option
       cramit.removeFixtureData(fixtures, cb);
     }
   });
-}
+};
 
 /**
  * Uses the module Crave to find all fixtures in a given 
@@ -356,7 +366,7 @@ Cramit.prototype.findAllFixturesAndUpsertData = function(applicationPath, option
       cramit.upsertFixtureData(fixtures, cb);
     }
   });
-}
+};
 
 /**
  * Must be called by a class that inherits Fixture in
@@ -380,7 +390,33 @@ Cramit.prototype.fixtureSuper = function(instance, id) {
  */
 Cramit.prototype.fixturePrototype = function() {
   return this.inherit(this.Fixture.prototype);
-}
+};
+
+/**
+ * Create an object that contains each fixture's data,
+ * populated using the getAll() fixture method.  The
+ * keys for the object will remain the same, but each
+ * key's value will instead be the fixture data.
+ * @param fixtures is a fixtures object returned from
+ * Cramit.
+ * @param options is an object with settings for how
+ * to create the fixture data object.
+ * @param cb is a callback method where a result or
+ * error is returned.
+ */
+Cramit.prototype.getAllFixtureDataObject = function(fixtures, options, cb) {
+  if( ! fixtures) {
+    cb(new Error("Fixtures are invalid."));
+  } else {
+    var allFixtureDataObject = {};
+    for(var key in fixtures) {
+      if(fixtures.hasOwnProperty(key)) {
+        allFixtureDataObject[key] = fixtures[key].getAll();
+      }
+    }
+    cb(undefined, allFixtureDataObject);
+  }
+};
 
 /**
  * Insert all data found in a list of fixtures.
@@ -447,7 +483,7 @@ Cramit.prototype.formatFixtures = function(fixtures, cb) {
   } else {
     cb(undefined, fixturesObject);
   }
-}
+};
 
 /**
  * Delete all data found in a list of fixtures.
