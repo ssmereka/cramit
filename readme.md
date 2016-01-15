@@ -90,6 +90,7 @@ The Cramit API consists of the following methods.
   * <a href="https://github.com/ssmereka/cramit/wiki/API#find-all-fixtures-and-upsert-data" target="_blank">Find All Fixtures and Upsert Data</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/API#fixture-super" target="_blank">Fixture Super</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/API#fixture-prototype" target="_blank">Fixture Prototype</a>
+  * <a href="https://github.com/ssmereka/cramit/wiki/API#get-all-fixture-data-object" target="_blank">Get All Fixture Data Object</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/API#insert-fixture-data" target="_blank">Insert Fixture Data</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/API#format-fixtures" target="_blank">Format Fixtures</a>
   * <a href="https://github.com/ssmereka/cramit/wiki/API#remove-fixture-data" target="_blank">Remove Fixture Data</a>
