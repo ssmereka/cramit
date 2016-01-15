@@ -114,7 +114,7 @@ Cramit.prototype.setConfig = function(config, initalize) {
  * @param databaseInstance is the new database instance value.
  */
 Cramit.prototype.setDatabaseInstance = function(databaseInstance) {
-  if( ! config || ! _.isObject(config)) {
+  if( ! this.config || ! _.isObject(this.config)) {
     this.config = JSON.parse(JSON.stringify(defaultConfig));
   }
   this.config.database.instance = databaseInstance;
