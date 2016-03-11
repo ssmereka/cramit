@@ -28,9 +28,8 @@ var defaultConfig = {
       identifier: "_"           // Determines how to identify the files.
     }
   },
-  fixture: {
-    fileSuffix: "fixture"
-  }
+  fixture: {},
+  fixtureFileSuffix: "fixture"
 };
 
 var defaultLogConfig = {
@@ -259,7 +258,7 @@ Cramit.prototype.findAllFixtures = function(applicationPath, options, cb) {
   };
 
   // Recursively load all data files that are located in the apps folder.
-  crave.directory(applicationPath, [cramit.config.fixture.fileSuffix], formatFixtures, cramit, options);
+  crave.directory(applicationPath, [cramit.config.fixture.fixtureFileSuffix], formatFixtures, cramit, options);
 };
 
 /**
