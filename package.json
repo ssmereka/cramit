@@ -9,7 +9,7 @@
   "dependencies": {
     "async": "^1.4.2",
     "bunyan": "^1.5.1",
-    "crave": "0.0.13",
+    "crave": "0.0.14",
     "lodash": "3.10.1",
     "mongoose": "^4.1.9"
   },
