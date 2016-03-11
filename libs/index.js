@@ -101,8 +101,16 @@ Cramit.prototype.setConfig = function(config, initalize) {
     this.config = JSON.parse(JSON.stringify(defaultConfig));
   } else {
     for(var key in config) {
-      for(var subObjectKey in config[key]) {
-        this.config[key][subObjectKey] = config[key][subObjectKey];
+      switch(key) {
+        case "database":
+        case "crave":
+          for(var subObjectKey in config[key]) {
+            this.config[key][subObjectKey] = config[key][subObjectKey];
+          }
+          break;
+        default:
+          this.config[key] = config[key];
+          break;
       }
     }
   }
@@ -258,7 +266,7 @@ Cramit.prototype.findAllFixtures = function(applicationPath, options, cb) {
   };
 
   // Recursively load all data files that are located in the apps folder.
-  crave.directory(applicationPath, [cramit.config.fixture.fixtureFileSuffix], formatFixtures, cramit, options);
+  crave.directory(applicationPath, [cramit.config.fixtureFileSuffix], formatFixtures, cramit, options);
 };
 
 /**
